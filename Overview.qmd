@@ -85,9 +85,16 @@ movable_do <- function(solfege_str, key = "C", octave = 3) {
   }
   
   converted_str <- notes_tbl |>
-    mutate(full_note = if_else(note == "r",
-                               str_c("r", extra_oct),
-                               str_c(note, base_oct, extra_oct))) |>
+    mutate(
+      # combine the base octave with any ' or , typed after the syllable
+      oct_shift = oct_diff + str_count(extra_oct, "'") - str_count(extra_oct, ","),
+      oct_mark = case_when(
+        oct_shift > 0 ~ strrep("'", pmax(oct_shift, 0)),
+        oct_shift < 0 ~ strrep(",", pmax(-oct_shift, 0)),
+        TRUE ~ ""
+      ),
+      full_note = if_else(note == "r", "r", str_c(note, oct_mark))
+    ) |>
     pull(full_note) |>
     str_c(collapse = " ")
   
@@ -150,10 +157,31 @@ minor_belltone1 <- c(a_minor_pentascale, a_minor_triad)
 plot_music(minor_belltone1, clef = "treble")
 ```
 
-## Belltone #2
+\newpage
 
-Ascending Thirds
+# Belltone #2
 
+**Ascending Thirds**
 ```{r}
+#| fig-width: 7
+#| fig-height: 2
+#| out-width: "90%"
 
+ascending_thirds <- movable_do("do mi re fa mi so fa la so ti la do' re' ti do'", key = "c", octave = 4) |>
+  as_music(info = "8*14 4", key = "c", time = "4/4", tempo = "4 = 90")
+
+plot_music(ascending_thirds, clef = "treble")
 ```
+
+**Descending Thirds**
+```{r}
+#| fig-width: 7
+#| fig-height: 2
+#| out-width: "90%"
+
+descending_thirds <- movable_do("do' la ti so la fa so mi fa re mi do re ti, do", octave = 4) |>
+  as_music(info = "8*14 4", key = "c", time = "4/4", tempo = "4 = 90")
+
+plot_music(descending_thirds, clef = "treble")
+```
+
