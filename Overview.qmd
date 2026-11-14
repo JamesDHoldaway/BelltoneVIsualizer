@@ -67,6 +67,13 @@ movable_do <- function(solfege_str, key = "C", octave = 3) {
     paste0(c_notes[semi + 1], base_oct_str, extra_oct)
   })
   
+  # Build string in C Major based off of solfege then transpose it 
+  nw <- as_noteworthy(paste(converted, collapse = " "))
+  if (shift > 0 || grepl("m$", tolower(key))) {
+    nw <- transpose(nw, shift, key = key)
+  }
+  
+  return(nw)
 }
 ```
 
