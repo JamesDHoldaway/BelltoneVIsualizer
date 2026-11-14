@@ -1,13 +1,15 @@
 ---
-title: "Overview"
+title: "Belltones Overview"
+subtitle: "(Modeled in C Major & A Minor)"
 format: pdf
-author: "James Holdaway"
 editor: visual
+execute:
+  echo: FALSE 
+  message: FALSE 
+  warning: FALSE
 ---
 
 ```{r}
-#| message: FALSE 
-
 library(tabr)
 library(tidyverse)
 
@@ -53,8 +55,12 @@ movable_do <- function(solfege_str, key = "C", octave = 3) {
     "b" = 11
   )
   
+  is_minor <- grepl("m$", tolower(key))
   shift <- key_offsets[tonic]
   if (is.na(shift)) stop("Invalid key. Use tabr format like 'g', 'b_', 'f#', or 'am'.")
+  
+  # la-based minor: do sits on the relative major (3 half steps above the minor tonic)
+  if (is_minor) shift <- (shift + 3) %% 12
   
   oct_diff <- octave - 3
   base_oct <- if (oct_diff > 0) {
@@ -87,7 +93,7 @@ movable_do <- function(solfege_str, key = "C", octave = 3) {
   
   # Build string in C Major based off of solfege then transpose it 
   nw <- as_noteworthy(converted_str)
-  if (shift > 0 || grepl("m$", tolower(key))) {
+  if (shift > 0) {
     nw <- transpose(nw, shift, key = key)
   }
   
@@ -95,28 +101,59 @@ movable_do <- function(solfege_str, key = "C", octave = 3) {
 }
 ```
 
-## Belltone #1 
+# Belltone #1
 
-Major Pentascale + Triad 
+**Major Pentascale + Triad**
 ```{r}
-movable_do("do re mi fa so fa mi re do", key = "c")
+#| fig-width: 7
+#| fig-height: 1.4
+#| out-width: "90%"
+
+c_major_pentascale <- movable_do("do re mi fa so fa mi re do", key = "c", octave = 4) |>
+  as_music(info = "4*8 2", key = "c", time = "4/4", tempo = "4 = 90")
+
+c_major_triad <- movable_do("do mi so mi do", key = "c", octave = 4) |>
+  as_music(info = "4*4 2", key = "c", time = "4/4", tempo = "4 = 90")
+
+major_belltone1 <- c(c_major_pentascale, c_major_triad)
+
+plot_music(major_belltone1, clef = "treble")
 ```
 
-Bridge 
+
+**Bridge**
+```{r}
+#| fig-width: 2.5
+#| fig-height: 2
+#| out-width: "32%"
+
+bridge <- movable_do("do' ti la", key = "am", octave = 3) |>
+  as_music(info = "4*2 2", key = "am", time = "4/4", tempo = "4 = 90")
+
+plot_music(bridge, clef = "treble")
+```
+
+**Minor Pentascale + Triad**
+```{r}
+#| fig-width: 7
+#| fig-height: 2
+#| out-width: "90%"
+
+a_minor_pentascale <- movable_do("la ti do' re' mi' re' do' ti la", key = "am", octave = 3) |>
+  as_music(info = "4*8 2", key = "am", time = "4/4", tempo = "4 = 90")
+
+a_minor_triad <- movable_do("la do' mi' do' la", key = "am", octave = 3) |>
+  as_music(info = "4*4 2", key = "am", time = "4/4", tempo = "4 = 90")
+
+minor_belltone1 <- c(a_minor_pentascale, a_minor_triad)
+
+plot_music(minor_belltone1, clef = "treble")
+```
+
+## Belltone #2
+
+Ascending Thirds
+
 ```{r}
 
 ```
-
-Minor Pentascale + Triad 
-```{r}
-
-```
-
-
-## Belltone #2 
-
-Ascending Thirds 
-```{r}
-
-```
-
