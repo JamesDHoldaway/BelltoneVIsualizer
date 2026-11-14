@@ -9,20 +9,32 @@ editor: visual
 #| message: FALSE 
 
 library(tabr)
+library(tidyverse)
 
 movable_do <- function(solfege_str, key = "C", octave = 3) {
   # offsets in semitones relative to Do
-  semitone_map <- c(
-    "do" = 0, "di" = 1,
-    "ra" = 1, "re" = 2, "ri" = 3,
-    "me" = 3, "mi" = 4,
-    "fa" = 5, "fi" = 6,
-    "se" = 6, "so" = 7, "sol" = 7, "si" = 8,
-    "le" = 8, "la" = 9, "li" = 10,
-    "te" = 10, "ti" = 11
+  solfege_tbl <- tribble(
+    ~syllable, ~note,
+    "do",      "c",
+    "di",      "c#",
+    "ra",      "d_",
+    "re",      "d",
+    "ri",      "d#",
+    "me",      "e_",
+    "mi",      "e",
+    "fa",      "f",
+    "fi",      "f#",
+    "se",      "g_",
+    "sol",     "g",
+    "so",      "g",
+    "si",      "g#",
+    "le",      "a_",
+    "la",      "a",
+    "li",      "a#",
+    "te",      "b_",
+    "ti",      "b",
+    "r",       "r"
   )
-  
-  c_notes <- c("c", "d_", "d", "e_", "e", "f", "f#", "g", "a_", "a", "b_", "b")
   
   # Extract the tonic from the key 
   tonic <- tolower(sub("m$", "", key))
@@ -53,19 +65,23 @@ movable_do <- function(solfege_str, key = "C", octave = 3) {
     ""
   }
   
-  tokens <- strsplit(trimws(solfege_str), "\\s+")[[1]]
-  
-  converted <- sapply(tokens, function(tok) {
-    syllable <- tolower(sub("[^a-zA-Z].*$"), "", tok)
-    extra_oct <- sub("^[a-zA-Z]+", "", tok)
-    
-    if (syllable == "r") return(paste0("r", extra_oct))
-    
-    semi <- semitone_map[syllable]
-    if (is.na(semi)) stop(paste("Unkown sylablle:", syllable))
-    
-    paste0(c_notes[semi + 1], base_oct_str, extra_oct)
-  })
+    converted_str <- tibble(token = str_split_1(str_squish(solfege_str), " ")) |>
+    separate_wider_regex(
+      token,
+      patterns = c(syllable = "[a-zA-Z]+", extra_oct = ".*")
+    ) |>
+    mutate(syllable = str_to_lower(syllable)) |>
+    left_join(solfege_tbl, by = "syllable") |>
+    mutate(
+      note = if_else(is.na(note), stop("Unknown syllable found"), note),
+      full_note = if_else(
+        note == "r",
+        str_c("r", extra_oct),
+        str_c(note, base_oct, extra_oct)
+      )
+    ) |>
+    pull(full_note) |>
+    str_c(collapse = " ")
   
   # Build string in C Major based off of solfege then transpose it 
   nw <- as_noteworthy(paste(converted, collapse = " "))
