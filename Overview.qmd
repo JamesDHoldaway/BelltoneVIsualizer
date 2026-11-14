@@ -9,6 +9,19 @@ editor: visual
 #| message: FALSE 
 
 library(tabr)
+
+movable_do <- function(solfege_str, key = "C", octave = 3) {
+  # offsets in semitones relative to Do
+  semitone_map <- c(
+    "do" = 0, "di" = 1,
+    "ra" = 1, "re" = 2, "ri" = 3,
+    "me" = 3, "mi" = 4,
+    "fa" = 5, "fi" = 6,
+    "se" = 6, "so" = 7, "sol" = 7, "si" = 8,
+    "le" = 8, "la" = 9, "li" = 10,
+    "te" = 10, "ti" = 11
+  )
+}
 ```
 
 ## Belltone #1 
