@@ -53,6 +53,19 @@ movable_do <- function(solfege_str, key = "C", octave = 3) {
     ""
   }
   
+  tokens <- strsplit(trimws(solfege_str), "\\s+")[[1]]
+  
+  converted <- sapply(tokens, function(tok) {
+    syllable <- tolower(sub("[^a-zA-Z].*$"), "", tok)
+    extra_oct <- sub("^[a-zA-Z]+", "", tok)
+    
+    if (syllable == "r") return(paste0("r", extra_oct))
+    
+    semi <- semitone_map[syllable]
+    if (is.na(semi)) stop(paste("Unkown sylablle:", syllable))
+    
+    paste0(c_notes[semi + 1], base_oct_str, extra_oct)
+  })
   
 }
 ```
