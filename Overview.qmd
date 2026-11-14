@@ -57,7 +57,7 @@ movable_do <- function(solfege_str, key = "C", octave = 3) {
   if (is.na(shift)) stop("Invalid key. Use tabr format like 'g', 'b_', 'f#', or 'am'.")
   
   oct_diff <- octave - 3
-  base_ocr_str <- if (oct_diff > 0) {
+  base_oct <- if (oct_diff > 0) {
     strrep("'", oct_diff)
   } else if (oct_diff < 0) {
     strrep(",", abs(oct_diff))
@@ -65,26 +65,28 @@ movable_do <- function(solfege_str, key = "C", octave = 3) {
     ""
   }
   
-    converted_str <- tibble(token = str_split_1(str_squish(solfege_str), " ")) |>
+  notes_tbl <- tibble(token = str_split_1(str_squish(solfege_str), " ")) |>
     separate_wider_regex(
       token,
       patterns = c(syllable = "[a-zA-Z]+", extra_oct = ".*")
     ) |>
     mutate(syllable = str_to_lower(syllable)) |>
-    left_join(solfege_tbl, by = "syllable") |>
-    mutate(
-      note = if_else(is.na(note), stop("Unknown syllable found"), note),
-      full_note = if_else(
-        note == "r",
-        str_c("r", extra_oct),
-        str_c(note, base_oct, extra_oct)
-      )
-    ) |>
+    left_join(solfege_tbl, by = "syllable")
+  
+  if (any(is.na(notes_tbl$note))) {
+    bad <- unique(notes_tbl$syllable[is.na(notes_tbl$note)])
+    stop("Unknown syllable(s): ", paste(bad, collapse = ", "))
+  }
+  
+  converted_str <- notes_tbl |>
+    mutate(full_note = if_else(note == "r",
+                               str_c("r", extra_oct),
+                               str_c(note, base_oct, extra_oct))) |>
     pull(full_note) |>
     str_c(collapse = " ")
   
   # Build string in C Major based off of solfege then transpose it 
-  nw <- as_noteworthy(paste(converted, collapse = " "))
+  nw <- as_noteworthy(converted_str)
   if (shift > 0 || grepl("m$", tolower(key))) {
     nw <- transpose(nw, shift, key = key)
   }
@@ -97,7 +99,7 @@ movable_do <- function(solfege_str, key = "C", octave = 3) {
 
 Major Pentascale + Triad 
 ```{r}
-
+movable_do("do re mi fa so fa mi re do", key = "c")
 ```
 
 Bridge 
