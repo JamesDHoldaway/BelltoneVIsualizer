@@ -40,6 +40,20 @@ movable_do <- function(solfege_str, key = "C", octave = 3) {
     "a#" = 10, "b_" = 10,
     "b" = 11
   )
+  
+  shift <- key_offsets[tonic]
+  if (is.na(shift)) stop("Invalid key. Use tabr format like 'g', 'b_', 'f#', or 'am'.")
+  
+  oct_diff <- octave - 3
+  base_ocr_str <- if (oct_diff > 0) {
+    strrep("'", oct_diff)
+  } else if (oct_diff < 0) {
+    strrep(",", abs(oct_diff))
+  } else {
+    ""
+  }
+  
+  
 }
 ```
 
