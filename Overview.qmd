@@ -1,0 +1,38 @@
+---
+title: "Overview"
+format: pdf
+author: "James Holdaway"
+editor: visual
+---
+
+```{r}
+#| message: FALSE 
+
+library(tabr)
+```
+
+## Belltone #1 
+
+Major Pentascale + Triad 
+```{r}
+
+```
+
+Bridge 
+```{r}
+
+```
+
+Minor Pentascale + Triad 
+```{r}
+
+```
+
+
+## Belltone #2 
+
+Ascending Thirds 
+```{r}
+
+```
+
